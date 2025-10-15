@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flight Satisfaction Prediction</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .config-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            display: none;
+        }
+
+        .config-toggle {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .config-toggle button {
+            padding: 8px 16px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .config-toggle button:hover {
+            background: #5a6268;
+        }
+
+        .config-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .config-fields {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .input-group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        input[type="number"], 
+        input[type="text"], 
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        .rating-info {
+            font-size: 0.8em;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 150px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .secondary-btn {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-title {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .result-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            color: #444;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .prediction-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+            margin-top: 10px;
+        }
+
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #c33;
+        }
+
+        .success {
+            background: #efe;
+            color: #3a3;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #3a3;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #444;
+            margin: 30px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .section-title:first-of-type {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✈️ Flight Satisfaction Predictor</h1>
+        <p class="subtitle">Predict passenger satisfaction based on flight experience data</p>
+        
+        <!-- Configuration Toggle -->
+        <div class="config-toggle">
+            <button onclick="toggleConfig()">⚙️ API Configuration</button>
+        </div>
+
+        <!-- Configuration Section (Hidden by default) -->
+        <div class="config-section" id="config-section">
+            <div class="config-fields">
+                <div>
+                    <label for="endpoint-url">Endpoint URL:</label>
+                    <input type="text" id="endpoint-url" placeholder="https://your-endpoint.region.inference.ml.azure.com/score">
+                </div>
+                <div>
+                    <label for="api-key">API Key:</label>
+                    <input type="password" id="api-key" placeholder="Your API key">
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 15px;">
+                <button onclick="saveConfig()" style="padding: 8px 20px; font-size: 0.9em;">Save Configuration</button>
+            </div>
+        </div>
+
+        <!-- Customer Information -->
+        <div class="section-title">👤 Customer Information</div>
+        <div class="input-grid">
+            <div class="input-group">
+                <label for="gender">Gender:</label>
+                <select id="gender">
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="customer-type">Customer Type:</label>
+                <select id="customer-type">
+                    <option value="">Select Type</option>
+                    <option value="Loyal Customer">Loyal Customer</option>
+                    <option value="disloyal Customer">Disloyal Customer</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="age">Age:</label>
+                <input type="number" id="age" min="1" max="120" placeholder="Enter age">
+            </div>
+            <div class="input-group">
+                <label for="type-of-travel">Type of Travel:</label>
+                <select id="type-of-travel">
+                    <option value="">Select Type</option>
+                    <option value="Personal Travel">Personal Travel</option>
+                    <option value="Business travel">Business Travel</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="class">Class:</label>
+                <select id="class">
+                    <option value="">Select Class</option>
+                    <option value="Eco">Economy</option>
+                    <option value="Eco Plus">Economy Plus</option>
+                    <option value="Business">Business</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label for="flight-distance">Flight Distance:</label>
+                <input type="number" id="flight-distance" min="0" placeholder="Enter distance (miles)">
+            </div>
+        </div>
+
+        <!-- Service Ratings -->
+        <div class="section-title">⭐ Service Ratings</div>
+        <div class="input-grid">
+            <div class="input-group">
+                <label for="wifi-service">Inflight WiFi Service:</label>
+                <input type="number" id="wifi-service" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+            <div class="input-group">
+                <label for="time-convenient">Departure/Arrival Time Convenient:</label>
+                <input type="number" id="time-convenient" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+            <div class="input-group">
+                <label for="online-booking">Ease of Online Booking:</label>
+                <input type="number" id="online-booking" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+            <div class="input-group">
+                <label for="gate-location">Gate Location:</label>
+                <input type="number" id="gate-location" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+            <div class="input-group">
+                <label for="food-drink">Food and Drink:</label>
+                <input type="number" id="food-drink" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+            <div class="input-group">
+                <label for="online-boarding">Online Boarding:</label>
+                <input type="number" id="online-boarding" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+            <div class="input-group">
+                <label for="seat-comfort">Seat Comfort:</label>
+                <input type="number" id="seat-comfort" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+            <div class="input-group">
+                <label for="inflight-entertainment">Inflight Entertainment:</label>
+                <input type="number" id="inflight-entertainment" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+            <div class="input-group">
+                <label for="onboard-service">On-board Service:</label>
+                <input type="number" id="onboard-service" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+            <div class="input-group">
+                <label for="legroom">Leg Room Service:</label>
+                <input type="number" id="legroom" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+            <div class="input-group">
+                <label for="baggage-handling">Baggage Handling:</label>
+                <input type="number" id="baggage-handling" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+            <div class="input-group">
+                <label for="checkin-service">Check-in Service:</label>
+                <input type="number" id="checkin-service" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+            <div class="input-group">
+                <label for="inflight-service">Inflight Service:</label>
+                <input type="number" id="inflight-service" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+            <div class="input-group">
+                <label for="cleanliness">Cleanliness:</label>
+                <input type="number" id="cleanliness" min="0" max="5" placeholder="Rate 0-5">
+                <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+            </div>
+        </div>
+
+        <!-- Delay Information -->
+        <div class="section-title">⏱️ Delay Information</div>
+        <div class="input-grid">
+            <div class="input-group">
+                <label for="departure-delay">Departure Delay (Minutes):</label>
+                <input type="number" id="departure-delay" min="0" placeholder="Enter delay in minutes">
+            </div>
+            <div class="input-group">
+                <label for="arrival-delay">Arrival Delay (Minutes):</label>
+                <input type="number" id="arrival-delay" min="0" placeholder="Enter delay in minutes">
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button onclick="makePrediction()">🚀 Predict Satisfaction</button>
+            <button onclick="clearForm()" class="secondary-btn">Clear Form</button>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #666;">Analyzing flight data...</p>
+        </div>
+
+        <div class="result-section" id="result-section">
+            <div class="result-title">📊 Prediction Result</div>
+            <div class="result-content" id="prediction-result"></div>
+        </div>
+
+        <div id="message-area"></div>
+    </div>
+
+    <script>
+        // Default configuration - UPDATE THESE VALUES
+        const DEFAULT_ENDPOINT = ''; // Add your endpoint URL here
+        const DEFAULT_API_KEY = ''; // Add your API key here
+
+        // Load configuration on page load
+        window.onload = function() {
+            // Try to load from localStorage first
+            let savedUrl = localStorage.getItem('azureMLEndpoint');
+            let savedKey = localStorage.getItem('azureMLApiKey');
+            
+            // If not in localStorage, use defaults
+            if (!savedUrl && DEFAULT_ENDPOINT) {
+                savedUrl = DEFAULT_ENDPOINT;
+                localStorage.setItem('azureMLEndpoint', savedUrl);
+            }
+            if (!savedKey && DEFAULT_API_KEY) {
+                savedKey = DEFAULT_API_KEY;
+                localStorage.setItem('azureMLApiKey', savedKey);
+            }
+            
+            // Set the values in the form
+            if (savedUrl) {
+                document.getElementById('endpoint-url').value = savedUrl;
+            }
+            if (savedKey) {
+                document.getElementById('api-key').value = savedKey;
+            }
+        };
+
+        function toggleConfig() {
+            const configSection = document.getElementById('config-section');
+            configSection.style.display = configSection.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function saveConfig() {
+            const endpointUrl = document.getElementById('endpoint-url').value;
+            const apiKey = document.getElementById('api-key').value;
+            
+            if (endpointUrl && apiKey) {
+                localStorage.setItem('azureMLEndpoint', endpointUrl);
+                localStorage.setItem('azureMLApiKey', apiKey);
+                showMessage('Configuration saved successfully!', 'success');
+                setTimeout(() => toggleConfig(), 1500);
+            } else {
+                showMessage('Please fill in both endpoint URL and API key', 'error');
+            }
+        }
+
+        async function makePrediction() {
+            const endpointUrl = localStorage.getItem('azureMLEndpoint');
+            const apiKey = localStorage.getItem('azureMLApiKey');
+            
+            // Validation
+            if (!endpointUrl || !apiKey) {
+                showMessage('Please configure your endpoint URL and API key first', 'error');
+                toggleConfig();
+                return;
+            }
+            
+            // Collect all input values
+            const inputData = {
+                "Gender": document.getElementById('gender').value,
+                "Customer Type": document.getElementById('customer-type').value,
+                "Age": parseInt(document.getElementById('age').value) || 0,
+                "Type of Travel": document.getElementById('type-of-travel').value,
+                "Class": document.getElementById('class').value,
+                "Flight Distance": parseInt(document.getElementById('flight-distance').value) || 0,
+                "Inflight wifi service": parseInt(document.getElementById('wifi-service').value) || 0,
+                "Departure/Arrival time convenient": parseInt(document.getElementById('time-convenient').value) || 0,
+                "Ease of Online booking": parseInt(document.getElementById('online-booking').value) || 0,
+                "Gate location": parseInt(document.getElementById('gate-location').value) || 0,
+                "Food and drink": parseInt(document.getElementById('food-drink').value) || 0,
+                "Online boarding": parseInt(document.getElementById('online-boarding').value) || 0,
+                "Seat comfort": parseInt(document.getElementById('seat-comfort').value) || 0,
+                "Inflight entertainment": parseInt(document.getElementById('inflight-entertainment').value) || 0,
+                "On-board service": parseInt(document.getElementById('onboard-service').value) || 0,
+                "Leg room service": parseInt(document.getElementById('legroom').value) || 0,
+                "Baggage handling": parseInt(document.getElementById('baggage-handling').value) || 0,
+                "Checkin service": parseInt(document.getElementById('checkin-service').value) || 0,
+                "Inflight service": parseInt(document.getElementById('inflight-service').value) || 0,
+                "Cleanliness": parseInt(document.getElementById('cleanliness').value) || 0,
+                "Departure Delay in Minutes": parseInt(document.getElementById('departure-delay').value) || 0,
+                "Arrival Delay in Minutes": parseInt(document.getElementById('arrival-delay').value) || 0
+            };
+            
+            // Validate required fields
+            if (!inputData.Gender || !inputData["Customer Type"] || !inputData["Type of Travel"] || !inputData.Class) {
+                showMessage('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('result-section').classList.remove('active');
+            clearMessages();
+            
+            try {
+                // Prepare the request body for Azure ML
+                const requestBody = {
+                    "Inputs": {
+                        "data": [inputData]
+                    },
+                    "GlobalParameters": {}
+                };
+                
+                console.log('Sending request:', requestBody);
+                
+                // Make the API call
+                const response = await fetch(endpointUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`,
+                        'azureml-model-deployment': 'default'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Error ${response.status}: ${errorText}`);
+                }
+                
+                const result = await response.json();
+                console.log('Received result:', result);
+                
+                // Display result
+                displayResult(result);
+                
+            } catch (error) {
+                console.error('Prediction error:', error);
+                showMessage(`Error: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+            }
+        }
+
+        function displayResult(result) {
+            const resultSection = document.getElementById('result-section');
+            const predictionResult = document.getElementById('prediction-result');
+            
+            let predictionValue = '';
+            
+            // Try different response formats
+            if (result.Results && result.Results.output1) {
+                predictionValue = result.Results.output1;
+            } else if (result.Results && Array.isArray(result.Results)) {
+                predictionValue = result.Results[0];
+            } else if (result.result) {
+                predictionValue = result.result;
+            } else if (Array.isArray(result) && result.length > 0) {
+                predictionValue = result[0];
+            } else {
+                predictionValue = result;
+            }
+            
+            // Format the display based on the prediction
+            let displayText = '';
+            if (typeof predictionValue === 'object') {
+                // If it's an object, try to extract the prediction
+                const keys = Object.keys(predictionValue);
+                if (keys.length > 0) {
+                    displayText = `<div class="prediction-value">${predictionValue[keys[0]]}</div>`;
+                    if (keys.length > 1) {
+                        displayText += `<div style="margin-top: 15px; font-size: 0.9em; color: #666;">`;
+                        displayText += `Additional details: ${JSON.stringify(predictionValue, null, 2)}`;
+                        displayText += `</div>`;
+                    }
+                }
+            } else {
+                // Simple value display
+                displayText = `<div class="prediction-value">${predictionValue}</div>`;
+            }
+            
+            // Add interpretation if it's a binary classification
+            if (predictionValue === 'satisfied' || predictionValue === 1 || predictionValue === '1') {
+                displayText += '<div style="margin-top: 10px; color: #4caf50;">✅ Passenger is likely to be satisfied</div>';
+            } else if (predictionValue === 'neutral or dissatisfied' || predictionValue === 0 || predictionValue === '0') {
+                displayText += '<div style="margin-top: 10px; color: #ff9800;">⚠️ Passenger is likely to be neutral or dissatisfied</div>';
+            }
+            
+            predictionResult.innerHTML = displayText;
+            resultSection.classList.add('active');
+        }
+
+        function clearForm() {
+            // Clear all input fields
+            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+            document.querySelectorAll('select').forEach(select => select.value = '');
+            document.getElementById('result-section').classList.remove('active');
+            clearMessages();
+        }
+
+        function showMessage(message, type) {
+            const messageArea = document.getElementById('message-area');
+            messageArea.innerHTML = `<div class="${type}">${message}</div>`;
+            
+            // Auto-hide messages after 5 seconds
+            setTimeout(() => {
+                clearMessages();
+            }, 5000);
+        }
+
+        function clearMessages() {
+            document.getElementById('message-area').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
