@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Flight Satisfaction Prediction</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -12,21 +14,38 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
             min-height: 100vh;
-            padding: 20px;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%),
+                url('https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=1920&q=80') center/cover fixed;
+            z-index: -1;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            animation: fadeIn 0.5s ease;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(30px) saturate(150%);
+            border-radius: 24px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.08),
+                0 0 0 1px rgba(0, 0, 0, 0.04);
+            padding: 60px;
+            animation: fadeIn 0.6s ease-out;
         }
 
         @keyframes fadeIn {
@@ -41,52 +60,85 @@
         }
 
         h1 {
-            color: #333;
+            color: #1e293b;
             text-align: center;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            margin-bottom: 12px;
+            font-size: 3.2em;
+            font-weight: 800;
+            letter-spacing: -1.5px;
         }
 
         .subtitle {
             text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 1.1em;
+            color: #64748b;
+            margin-bottom: 50px;
+            font-size: 1.15em;
+            font-weight: 400;
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            color: #1e293b;
+            margin: 45px 0 25px 0;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 12px;
+            border-left: 4px solid #3b82f6;
+            font-weight: 700;
+        }
+
+        .section-title:first-of-type {
+            margin-top: 25px;
         }
 
         .input-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 35px;
         }
 
         .input-group {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .input-group::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            border-radius: 12px 12px 0 0;
         }
 
         .input-group:hover {
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group:hover::before {
+            transform: scaleX(1);
         }
 
         .input-group.error {
-            border-color: #ef4444;
+            border-color: #f87171;
             background: #fef2f2;
         }
 
         label {
             display: block;
             margin-bottom: 8px;
-            color: #555;
+            color: #334155;
             font-weight: 600;
             font-size: 0.9em;
         }
@@ -94,39 +146,60 @@
         input[type="number"], 
         select {
             width: 100%;
-            padding: 10px 12px;
-            border: 2px solid #e0e0e0;
+            padding: 12px 14px;
+            border: 1.5px solid #e2e8f0;
             border-radius: 8px;
             font-size: 0.95em;
-            transition: all 0.3s ease;
-            background: white;
+            transition: all 0.2s ease;
+            background: #f8fafc;
+            color: #1e293b;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        input::placeholder {
+            color: #94a3b8;
         }
 
         input:focus, select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: #ffffff;
         }
 
         input.invalid, select.invalid {
-            border-color: #ef4444;
+            border-color: #f87171;
         }
 
         select {
             cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath fill='%233b82f6' d='M7 10L2 5h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 40px;
+        }
+
+        select option {
+            background: #ffffff;
+            color: #1e293b;
+            padding: 10px;
         }
 
         .rating-info {
             font-size: 0.8em;
-            color: #888;
-            margin-top: 3px;
+            color: #94a3b8;
+            margin-top: 5px;
+            font-weight: 400;
         }
 
         .error-text {
             font-size: 0.75em;
             color: #ef4444;
-            margin-top: 4px;
+            margin-top: 5px;
             display: none;
+            font-weight: 500;
         }
 
         .input-group.error .error-text {
@@ -135,27 +208,30 @@
 
         .button-group {
             display: flex;
-            gap: 15px;
-            margin-top: 30px;
+            gap: 16px;
+            margin-top: 45px;
             justify-content: center;
         }
 
         button {
-            padding: 14px 32px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 1.1em;
+            border-radius: 12px;
+            font-size: 1.05em;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 150px;
+            transition: all 0.2s ease;
+            min-width: 180px;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.35);
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
         }
 
         button:active {
@@ -163,19 +239,33 @@
         }
 
         button:disabled {
-            background: #ccc;
+            background: #cbd5e1;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
 
         .secondary-btn {
-            background: linear-gradient(135deg, #f093fb, #f5576c);
+            background: #ffffff;
+            color: #475569;
+            border: 1.5px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .secondary-btn:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         .loading {
             display: none;
             text-align: center;
-            margin-top: 30px;
+            margin-top: 40px;
+            padding: 40px;
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1.5px solid #e2e8f0;
         }
 
         .loading.active {
@@ -183,25 +273,27 @@
         }
 
         .spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
+            border: 3px solid #e2e8f0;
+            border-top: 3px solid #3b82f6;
             border-radius: 50%;
             width: 50px;
             height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: #64748b;
+            font-size: 1em;
+            font-weight: 500;
         }
 
         .result-section {
-            margin-top: 30px;
-            padding: 25px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 15px;
+            margin-top: 45px;
             display: none;
             animation: slideIn 0.5s ease;
         }
@@ -222,120 +314,138 @@
         }
 
         .result-title {
-            font-size: 1.4em;
-            color: #333;
-            margin-bottom: 15px;
-            font-weight: 600;
+            font-size: 1.8em;
+            color: #1e293b;
+            margin-bottom: 24px;
+            font-weight: 700;
             text-align: center;
         }
 
         .result-content {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: #ffffff;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            border: 1.5px solid #e2e8f0;
         }
 
         .prediction-value {
-            font-size: 1.8em;
-            font-weight: bold;
-            margin: 20px 0;
+            font-size: 2.5em;
+            font-weight: 800;
+            margin: 25px 0;
             text-align: center;
+            letter-spacing: -0.5px;
         }
 
         .prediction-message {
             text-align: center;
-            font-size: 1.1em;
-            margin: 15px 0;
-            padding: 15px;
-            border-radius: 10px;
+            font-size: 1.15em;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 12px;
+            font-weight: 600;
         }
 
         .probability-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 25px;
-            border-radius: 15px;
-            margin-top: 20px;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1.5px solid #bfdbfe;
+            color: #1e293b;
+            padding: 30px;
+            border-radius: 14px;
+            margin-top: 25px;
         }
 
         .probability-title {
-            font-size: 1em;
-            font-weight: 600;
+            font-size: 1.1em;
+            font-weight: 700;
             margin-bottom: 20px;
-            opacity: 0.9;
+            color: #1e40af;
         }
 
         .probability-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            gap: 16px;
         }
 
         .probability-item {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            padding: 20px;
+            background: #ffffff;
+            padding: 24px;
             border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1.5px solid #dbeafe;
+            transition: all 0.2s ease;
+        }
+
+        .probability-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
         }
 
         .probability-label {
             font-size: 0.9em;
-            margin-bottom: 10px;
-            opacity: 0.9;
+            margin-bottom: 12px;
+            color: #64748b;
+            font-weight: 600;
         }
 
         .probability-value {
             font-size: 2.5em;
-            font-weight: 700;
-            margin-bottom: 10px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: #3b82f6;
         }
 
         .probability-bar {
             height: 8px;
-            background: rgba(255, 255, 255, 0.3);
+            background: #e2e8f0;
             border-radius: 4px;
             overflow: hidden;
-            margin-top: 10px;
+            margin-top: 12px;
         }
 
         .probability-fill {
             height: 100%;
-            background: white;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
             border-radius: 4px;
             transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
         .error {
-            background: #fee;
-            color: #c33;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border-left: 4px solid #c33;
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 18px 22px;
+            border-radius: 12px;
+            margin-top: 25px;
+            border: 1.5px solid #fecaca;
+            font-weight: 500;
         }
 
         .success {
-            background: #efe;
-            color: #3a3;
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 20px;
-            border-left: 4px solid #3a3;
+            background: #f0fdf4;
+            color: #16a34a;
+            padding: 18px 22px;
+            border-radius: 12px;
+            margin-top: 25px;
+            border: 1.5px solid #bbf7d0;
+            font-weight: 500;
         }
 
-        .section-title {
-            font-size: 1.3em;
-            color: #444;
-            margin: 30px 0 20px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0;
-        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 30px 20px;
+            }
 
-        .section-title:first-of-type {
-            margin-top: 20px;
+            h1 {
+                font-size: 2.2em;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -507,7 +617,7 @@
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p style="margin-top: 10px; color: #666;">Analyzing flight data...</p>
+            <p>Analyzing flight data...</p>
         </div>
 
         <div class="result-section" id="result-section">
@@ -524,14 +634,12 @@
             const group = document.getElementById(`group-${id}`);
             const value = element.value;
             
-            // If empty, it's invalid for this context
             if (!value) {
                 group.classList.add('error');
                 element.classList.add('invalid');
                 return false;
             }
             
-            // Check numeric range
             const numValue = parseFloat(value);
             if (isNaN(numValue) || numValue < min || numValue > max) {
                 group.classList.add('error');
@@ -563,25 +671,21 @@
         function validateForm() {
             let isValid = true;
             
-            // Required dropdown fields
             isValid = validateSelect('gender') && isValid;
             isValid = validateSelect('customer-type') && isValid;
             isValid = validateSelect('type-of-travel') && isValid;
             isValid = validateSelect('class') && isValid;
             
-            // Age validation
             const age = document.getElementById('age').value;
             if (age) {
                 isValid = validateInput('age', 1, 120) && isValid;
             }
             
-            // Flight distance
             const distance = document.getElementById('flight-distance').value;
             if (distance) {
                 isValid = validateInput('flight-distance', 0, 15000) && isValid;
             }
             
-            // Service ratings (0-5)
             const ratings = ['wifi-service', 'time-convenient', 'online-booking', 'gate-location',
                            'food-drink', 'online-boarding', 'seat-comfort', 'inflight-entertainment',
                            'onboard-service', 'legroom', 'baggage-handling', 'checkin-service',
@@ -594,7 +698,6 @@
                 }
             });
             
-            // Delays (0-1440 minutes = 24 hours)
             const departureDelay = document.getElementById('departure-delay').value;
             if (departureDelay) {
                 isValid = validateInput('departure-delay', 0, 1440) && isValid;
@@ -609,10 +712,8 @@
         }
 
         async function makePrediction() {
-            // Validate form
             if (!validateForm()) {
                 showMessage('Please fix the errors highlighted in red before submitting', 'error');
-                // Scroll to first error
                 const firstError = document.querySelector('.input-group.error');
                 if (firstError) {
                     firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -646,185 +747,4 @@
             };
             
             document.getElementById('loading').classList.add('active');
-            document.getElementById('result-section').classList.remove('active');
-            clearMessages();
-            
-            try {
-                const response = await fetch('/api/predict', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(inputData)
-                });
-                
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Error ${response.status}: ${errorText}`);
-                }
-                
-                const result = await response.json();
-                console.log('Received result:', result);
-                
-                displayResult(result);
-                
-            } catch (error) {
-                console.error('Prediction error:', error);
-                showMessage(`Error: ${error.message}`, 'error');
-            } finally {
-                document.getElementById('loading').classList.remove('active');
-            }
-        }
-
-        function displayResult(result) {
-            const resultSection = document.getElementById('result-section');
-            const predictionResult = document.getElementById('prediction-result');
-            
-            let displayText = '';
-            let predictionValue = '';
-            let probability = null;
-            
-            try {
-                if (result.Results && result.Results.WebServiceOutput0) {
-                    const output = result.Results.WebServiceOutput0;
-                    if (Array.isArray(output) && output.length > 0) {
-                        const firstResult = output[0];
-                        predictionValue = firstResult['Scored Labels'] || '';
-                        probability = firstResult['Scored Probabilities'];
-                    }
-                }
-                
-                if (predictionValue) {
-                    const valueStr = String(predictionValue).toLowerCase();
-                    const satisfiedProb = probability !== null ? (probability * 100).toFixed(1) : null;
-                    const dissatisfiedProb = probability !== null ? ((1 - probability) * 100).toFixed(1) : null;
-                    
-                    if (valueStr.includes('satisfied') && !valueStr.includes('dissatisfied')) {
-                        displayText = `
-                            <div class="prediction-value" style="color: #10b981;">✅ Satisfied</div>
-                            <div class="prediction-message" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46;">
-                                <strong>Passenger is likely to be satisfied with their flight experience</strong>
-                            </div>
-                        `;
-                    } else {
-                        displayText = `
-                            <div class="prediction-value" style="color: #f59e0b;">⚠️ Not Satisfied</div>
-                            <div class="prediction-message" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e;">
-                                <strong>Passenger is likely to be neutral or dissatisfied with their flight experience</strong>
-                            </div>
-                        `;
-                    }
-                    
-                    // Add probability information
-                    if (probability !== null && probability !== undefined) {
-                        displayText += `
-                            <div class="probability-card">
-                                <div class="probability-title">📊 Probability Breakdown</div>
-                                <div class="probability-grid">
-                                    <div class="probability-item">
-                                        <div class="probability-label">Satisfied</div>
-                                        <div class="probability-value">${satisfiedProb}%</div>
-                                        <div class="probability-bar">
-                                            <div class="probability-fill" style="width: ${satisfiedProb}%;"></div>
-                                        </div>
-                                    </div>
-                                    <div class="probability-item">
-                                        <div class="probability-label">Not Satisfied</div>
-                                        <div class="probability-value">${dissatisfiedProb}%</div>
-                                        <div class="probability-bar">
-                                            <div class="probability-fill" style="width: ${dissatisfiedProb}%;"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                } else {
-                    displayText = `
-                        <div style="color: #666;">Unable to extract prediction</div>
-                        <details style="margin-top: 15px;">
-                            <summary style="cursor: pointer; color: #667eea;">Show raw response</summary>
-                            <pre style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px; overflow-x: auto; font-size: 0.8em;">${JSON.stringify(result, null, 2)}</pre>
-                        </details>
-                    `;
-                }
-                
-            } catch (error) {
-                console.error('Error displaying result:', error);
-                displayText = `
-                    <div style="color: #c33;">Error displaying prediction</div>
-                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">${error.message}</div>
-                `;
-            }
-            
-            predictionResult.innerHTML = displayText;
-            resultSection.classList.add('active');
-        }
-
-        function clearForm() {
-            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
-            document.querySelectorAll('select').forEach(select => select.value = '');
-            document.querySelectorAll('.input-group').forEach(group => group.classList.remove('error'));
-            document.querySelectorAll('input, select').forEach(el => el.classList.remove('invalid'));
-            document.getElementById('result-section').classList.remove('active');
-            clearMessages();
-        }
-
-        function showMessage(message, type) {
-            const messageArea = document.getElementById('message-area');
-            messageArea.innerHTML = `<div class="${type}">${message}</div>`;
-            
-            setTimeout(() => {
-                clearMessages();
-            }, 5000);
-        }
-
-        function clearMessages() {
-            document.getElementById('message-area').innerHTML = '';
-        }
-
-        // Add real-time validation on blur
-        document.addEventListener('DOMContentLoaded', function() {
-            // Validate select dropdowns
-            const selects = document.querySelectorAll('select');
-            selects.forEach(select => {
-                select.addEventListener('change', function() {
-                    const group = document.getElementById(`group-${this.id}`);
-                    if (group) {
-                        if (this.value) {
-                            group.classList.remove('error');
-                            this.classList.remove('invalid');
-                        }
-                    }
-                });
-            });
-            
-            // Validate number inputs
-            const numberInputs = document.querySelectorAll('input[type="number"]');
-            numberInputs.forEach(input => {
-                input.addEventListener('blur', function() {
-                    const id = this.id;
-                    const group = document.getElementById(`group-${id}`);
-                    
-                    if (group && this.value) {
-                        const min = parseFloat(this.min) || 0;
-                        const max = parseFloat(this.max) || Infinity;
-                        validateInput(id, min, max);
-                    } else if (group && this.value) {
-                        group.classList.remove('error');
-                        this.classList.remove('invalid');
-                    }
-                });
-                
-                input.addEventListener('input', function() {
-                    const group = document.getElementById(`group-${this.id}`);
-                    if (group && group.classList.contains('error')) {
-                        group.classList.remove('error');
-                        this.classList.remove('invalid');
-                    }
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+            document.getElementById('result-section').classList.remove('active
