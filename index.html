@@ -519,23 +519,16 @@
     </div>
 
     <script>
-        function validateInput(id, min, max, required = false) {
+        function validateInput(id, min, max) {
             const element = document.getElementById(id);
             const group = document.getElementById(`group-${id}`);
             const value = element.value;
             
-            // Check if required field is empty
-            if (required && !value) {
+            // If empty, it's invalid for this context
+            if (!value) {
                 group.classList.add('error');
                 element.classList.add('invalid');
                 return false;
-            }
-            
-            // If not required and empty, it's valid
-            if (!required && !value) {
-                group.classList.remove('error');
-                element.classList.remove('invalid');
-                return true;
             }
             
             // Check numeric range
@@ -551,14 +544,30 @@
             return true;
         }
 
+        function validateSelect(id) {
+            const element = document.getElementById(id);
+            const group = document.getElementById(`group-${id}`);
+            const value = element.value;
+            
+            if (!value) {
+                group.classList.add('error');
+                element.classList.add('invalid');
+                return false;
+            }
+            
+            group.classList.remove('error');
+            element.classList.remove('invalid');
+            return true;
+        }
+
         function validateForm() {
             let isValid = true;
             
-            // Required fields
-            isValid = validateInput('gender', 0, 0, true) && isValid;
-            isValid = validateInput('customer-type', 0, 0, true) && isValid;
-            isValid = validateInput('type-of-travel', 0, 0, true) && isValid;
-            isValid = validateInput('class', 0, 0, true) && isValid;
+            // Required dropdown fields
+            isValid = validateSelect('gender') && isValid;
+            isValid = validateSelect('customer-type') && isValid;
+            isValid = validateSelect('type-of-travel') && isValid;
+            isValid = validateSelect('class') && isValid;
             
             // Age validation
             const age = document.getElementById('age').value;
@@ -776,8 +785,23 @@
 
         // Add real-time validation on blur
         document.addEventListener('DOMContentLoaded', function() {
-            const inputs = document.querySelectorAll('input[type="number"], select');
-            inputs.forEach(input => {
+            // Validate select dropdowns
+            const selects = document.querySelectorAll('select');
+            selects.forEach(select => {
+                select.addEventListener('change', function() {
+                    const group = document.getElementById(`group-${this.id}`);
+                    if (group) {
+                        if (this.value) {
+                            group.classList.remove('error');
+                            this.classList.remove('invalid');
+                        }
+                    }
+                });
+            });
+            
+            // Validate number inputs
+            const numberInputs = document.querySelectorAll('input[type="number"]');
+            numberInputs.forEach(input => {
                 input.addEventListener('blur', function() {
                     const id = this.id;
                     const group = document.getElementById(`group-${id}`);
@@ -786,23 +810,15 @@
                         const min = parseFloat(this.min) || 0;
                         const max = parseFloat(this.max) || Infinity;
                         validateInput(id, min, max);
-                    } else if (group && !this.value) {
-                        // Check if it's a required field
-                        const required = ['gender', 'customer-type', 'type-of-travel', 'class'].includes(id);
-                        if (required) {
-                            group.classList.add('error');
-                            this.classList.add('invalid');
-                        } else {
-                            group.classList.remove('error');
-                            this.classList.remove('invalid');
-                        }
+                    } else if (group && this.value) {
+                        group.classList.remove('error');
+                        this.classList.remove('invalid');
                     }
                 });
                 
                 input.addEventListener('input', function() {
                     const group = document.getElementById(`group-${this.id}`);
                     if (group && group.classList.contains('error')) {
-                        // Remove error as user types
                         group.classList.remove('error');
                         this.classList.remove('invalid');
                     }
