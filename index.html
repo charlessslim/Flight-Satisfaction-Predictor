@@ -58,46 +58,6 @@
             font-size: 1.1em;
         }
 
-        .config-section {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 1px solid #e0e0e0;
-            display: none;
-        }
-
-        .config-toggle {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .config-toggle button {
-            padding: 8px 16px;
-            background: #6c757d;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-
-        .config-toggle button:hover {
-            background: #5a6268;
-        }
-
-        .config-fields {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .config-fields {
-                grid-template-columns: 1fr;
-            }
-        }
-
         .input-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -127,8 +87,6 @@
         }
 
         input[type="number"], 
-        input[type="text"], 
-        input[type="password"],
         select {
             width: 100%;
             padding: 10px 12px;
@@ -303,28 +261,6 @@
     <div class="container">
         <h1>✈️ Flight Satisfaction Predictor</h1>
         <p class="subtitle">Predict passenger satisfaction based on flight experience data</p>
-        
-        <!-- Configuration Toggle -->
-        <div class="config-toggle">
-            <button onclick="toggleConfig()">⚙️ API Configuration</button>
-        </div>
-
-        <!-- Configuration Section (Hidden by default) -->
-        <div class="config-section" id="config-section">
-            <div class="config-fields">
-                <div>
-                    <label for="endpoint-url">Endpoint URL:</label>
-                    <input type="text" id="endpoint-url" placeholder="https://your-endpoint.region.inference.ml.azure.com/score">
-                </div>
-                <div>
-                    <label for="api-key">API Key:</label>
-                    <input type="password" id="api-key" placeholder="Your API key">
-                </div>
-            </div>
-            <div style="text-align: center; margin-top: 15px;">
-                <button onclick="saveConfig()" style="padding: 8px 20px; font-size: 0.9em;">Save Configuration</button>
-            </div>
-        </div>
 
         <!-- Customer Information -->
         <div class="section-title">👤 Customer Information</div>
@@ -479,65 +415,7 @@
     </div>
 
     <script>
-        // Default configuration - UPDATE THESE VALUES
-        const DEFAULT_ENDPOINT = ''; // Add your endpoint URL here
-        const DEFAULT_API_KEY = ''; // Add your API key here
-
-        // Load configuration on page load
-        window.onload = function() {
-            // Try to load from localStorage first
-            let savedUrl = localStorage.getItem('azureMLEndpoint');
-            let savedKey = localStorage.getItem('azureMLApiKey');
-            
-            // If not in localStorage, use defaults
-            if (!savedUrl && DEFAULT_ENDPOINT) {
-                savedUrl = DEFAULT_ENDPOINT;
-                localStorage.setItem('azureMLEndpoint', savedUrl);
-            }
-            if (!savedKey && DEFAULT_API_KEY) {
-                savedKey = DEFAULT_API_KEY;
-                localStorage.setItem('azureMLApiKey', savedKey);
-            }
-            
-            // Set the values in the form
-            if (savedUrl) {
-                document.getElementById('endpoint-url').value = savedUrl;
-            }
-            if (savedKey) {
-                document.getElementById('api-key').value = savedKey;
-            }
-        };
-
-        function toggleConfig() {
-            const configSection = document.getElementById('config-section');
-            configSection.style.display = configSection.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function saveConfig() {
-            const endpointUrl = document.getElementById('endpoint-url').value;
-            const apiKey = document.getElementById('api-key').value;
-            
-            if (endpointUrl && apiKey) {
-                localStorage.setItem('azureMLEndpoint', endpointUrl);
-                localStorage.setItem('azureMLApiKey', apiKey);
-                showMessage('Configuration saved successfully!', 'success');
-                setTimeout(() => toggleConfig(), 1500);
-            } else {
-                showMessage('Please fill in both endpoint URL and API key', 'error');
-            }
-        }
-
         async function makePrediction() {
-            const endpointUrl = localStorage.getItem('azureMLEndpoint');
-            const apiKey = localStorage.getItem('azureMLApiKey');
-            
-            // Validation
-            if (!endpointUrl || !apiKey) {
-                showMessage('Please configure your endpoint URL and API key first', 'error');
-                toggleConfig();
-                return;
-            }
-            
             // Collect all input values
             const inputData = {
                 "Gender": document.getElementById('gender').value,
@@ -576,25 +454,13 @@
             clearMessages();
             
             try {
-                // Prepare the request body for Azure ML
-                const requestBody = {
-                    "Inputs": {
-                        "data": [inputData]
-                    },
-                    "GlobalParameters": {}
-                };
-                
-                console.log('Sending request:', requestBody);
-                
-                // Make the API call
-                const response = await fetch(endpointUrl, {
+                // Call the Azure Static Web Apps API function
+                const response = await fetch('/api/predict', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`,
-                        'azureml-model-deployment': 'default'
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(requestBody)
+                    body: JSON.stringify(inputData)
                 });
                 
                 if (!response.ok) {
@@ -623,7 +489,9 @@
             let predictionValue = '';
             
             // Try different response formats
-            if (result.Results && result.Results.output1) {
+            if (result.prediction) {
+                predictionValue = result.prediction;
+            } else if (result.Results && result.Results.output1) {
                 predictionValue = result.Results.output1;
             } else if (result.Results && Array.isArray(result.Results)) {
                 predictionValue = result.Results[0];
@@ -638,7 +506,6 @@
             // Format the display based on the prediction
             let displayText = '';
             if (typeof predictionValue === 'object') {
-                // If it's an object, try to extract the prediction
                 const keys = Object.keys(predictionValue);
                 if (keys.length > 0) {
                     displayText = `<div class="prediction-value">${predictionValue[keys[0]]}</div>`;
@@ -649,11 +516,10 @@
                     }
                 }
             } else {
-                // Simple value display
                 displayText = `<div class="prediction-value">${predictionValue}</div>`;
             }
             
-            // Add interpretation if it's a binary classification
+            // Add interpretation
             if (predictionValue === 'satisfied' || predictionValue === 1 || predictionValue === '1') {
                 displayText += '<div style="margin-top: 10px; color: #4caf50;">✅ Passenger is likely to be satisfied</div>';
             } else if (predictionValue === 'neutral or dissatisfied' || predictionValue === 0 || predictionValue === '0') {
@@ -665,7 +531,6 @@
         }
 
         function clearForm() {
-            // Clear all input fields
             document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
             document.querySelectorAll('select').forEach(select => select.value = '');
             document.getElementById('result-section').classList.remove('active');
@@ -676,7 +541,6 @@
             const messageArea = document.getElementById('message-area');
             messageArea.innerHTML = `<div class="${type}">${message}</div>`;
             
-            // Auto-hide messages after 5 seconds
             setTimeout(() => {
                 clearMessages();
             }, 5000);
