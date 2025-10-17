@@ -747,4 +747,181 @@
             };
             
             document.getElementById('loading').classList.add('active');
-            document.getElementById('result-section').classList.remove('active
+            document.getElementById('result-section').classList.remove('active');
+            clearMessages();
+            
+            try {
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(inputData)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Error ${response.status}: ${errorText}`);
+                }
+                
+                const result = await response.json();
+                console.log('Received result:', result);
+                
+                displayResult(result);
+                
+            } catch (error) {
+                console.error('Prediction error:', error);
+                showMessage(`Error: ${error.message}`, 'error');
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+            }
+        }
+
+        function displayResult(result) {
+            const resultSection = document.getElementById('result-section');
+            const predictionResult = document.getElementById('prediction-result');
+            
+            let displayText = '';
+            let predictionValue = '';
+            let probability = null;
+            
+            try {
+                if (result.Results && result.Results.WebServiceOutput0) {
+                    const output = result.Results.WebServiceOutput0;
+                    if (Array.isArray(output) && output.length > 0) {
+                        const firstResult = output[0];
+                        predictionValue = firstResult['Scored Labels'] || '';
+                        probability = firstResult['Scored Probabilities'];
+                    }
+                }
+                
+                if (predictionValue) {
+                    const valueStr = String(predictionValue).toLowerCase();
+                    const satisfiedProb = probability !== null ? (probability * 100).toFixed(1) : null;
+                    const dissatisfiedProb = probability !== null ? ((1 - probability) * 100).toFixed(1) : null;
+                    
+                    if (valueStr.includes('satisfied') && !valueStr.includes('dissatisfied')) {
+                        displayText = `
+                            <div class="prediction-value" style="color: #10b981;">✅ Satisfied</div>
+                            <div class="prediction-message" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46;">
+                                <strong>Passenger is likely to be satisfied with their flight experience</strong>
+                            </div>
+                        `;
+                    } else {
+                        displayText = `
+                            <div class="prediction-value" style="color: #f59e0b;">⚠️ Not Satisfied</div>
+                            <div class="prediction-message" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e;">
+                                <strong>Passenger is likely to be neutral or dissatisfied with their flight experience</strong>
+                            </div>
+                        `;
+                    }
+                    
+                    if (probability !== null && probability !== undefined) {
+                        displayText += `
+                            <div class="probability-card">
+                                <div class="probability-title">📊 Probability Breakdown</div>
+                                <div class="probability-grid">
+                                    <div class="probability-item">
+                                        <div class="probability-label">Satisfied</div>
+                                        <div class="probability-value">${satisfiedProb}%</div>
+                                        <div class="probability-bar">
+                                            <div class="probability-fill" style="width: ${satisfiedProb}%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="probability-item">
+                                        <div class="probability-label">Not Satisfied</div>
+                                        <div class="probability-value">${dissatisfiedProb}%</div>
+                                        <div class="probability-bar">
+                                            <div class="probability-fill" style="width: ${dissatisfiedProb}%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    displayText = `
+                        <div style="color: #666;">Unable to extract prediction</div>
+                        <details style="margin-top: 15px;">
+                            <summary style="cursor: pointer; color: #3b82f6;">Show raw response</summary>
+                            <pre style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px; overflow-x: auto; font-size: 0.8em;">${JSON.stringify(result, null, 2)}</pre>
+                        </details>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Error displaying result:', error);
+                displayText = `
+                    <div style="color: #c33;">Error displaying prediction</div>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">${error.message}</div>
+                `;
+            }
+            
+            predictionResult.innerHTML = displayText;
+            resultSection.classList.add('active');
+        }
+
+        function clearForm() {
+            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+            document.querySelectorAll('select').forEach(select => select.value = '');
+            document.querySelectorAll('.input-group').forEach(group => group.classList.remove('error'));
+            document.querySelectorAll('input, select').forEach(el => el.classList.remove('invalid'));
+            document.getElementById('result-section').classList.remove('active');
+            clearMessages();
+        }
+
+        function showMessage(message, type) {
+            const messageArea = document.getElementById('message-area');
+            messageArea.innerHTML = `<div class="${type}">${message}</div>`;
+            
+            setTimeout(() => {
+                clearMessages();
+            }, 5000);
+        }
+
+        function clearMessages() {
+            document.getElementById('message-area').innerHTML = '';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const selects = document.querySelectorAll('select');
+            selects.forEach(select => {
+                select.addEventListener('change', function() {
+                    const group = document.getElementById(`group-${this.id}`);
+                    if (group) {
+                        if (this.value) {
+                            group.classList.remove('error');
+                            this.classList.remove('invalid');
+                        }
+                    }
+                });
+            });
+            
+            const numberInputs = document.querySelectorAll('input[type="number"]');
+            numberInputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    const id = this.id;
+                    const group = document.getElementById(`group-${id}`);
+                    
+                    if (group && this.value) {
+                        const min = parseFloat(this.min) || 0;
+                        const max = parseFloat(this.max) || Infinity;
+                        validateInput(id, min, max);
+                    } else if (group && this.value) {
+                        group.classList.remove('error');
+                        this.classList.remove('invalid');
+                    }
+                });
+                
+                input.addEventListener('input', function() {
+                    const group = document.getElementById(`group-${this.id}`);
+                    if (group && group.classList.contains('error')) {
+                        group.classList.remove('error');
+                        this.classList.remove('invalid');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
