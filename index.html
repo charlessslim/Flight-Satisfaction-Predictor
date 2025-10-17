@@ -485,47 +485,86 @@
         function displayResult(result) {
             const resultSection = document.getElementById('result-section');
             const predictionResult = document.getElementById('prediction-result');
+    
+            // Show the raw result for debugging
+            let displayText = '<div style="margin-bottom: 15px;"><strong>Raw Response (for debugging):</strong></div>';
+            displayText += '<pre style="text-align: left; font-size: 0.8em; background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; max-height: 400px;">';
+            displayText += JSON.stringify(result, null, 2);
+            displayText += '</pre>';
+    
+            // Try to extract the prediction
+            let predictionValue = 'Unable to extract prediction';
+    
+            try {
+                // Log the structure
+                console.log('Full result:', result);
+                console.log('Result type:', typeof result);
+                console.log('Result keys:', Object.keys(result));
+        
+                // Try common Azure ML response formats
+                if (result.Results) {
+                    console.log('Has Results property');
+                    console.log('Results keys:', Object.keys(result.Results));
+                    console.log('Results content:', result.Results);
             
-            let predictionValue = '';
-            
-            // Try different response formats
-            if (result.prediction) {
-                predictionValue = result.prediction;
-            } else if (result.Results && result.Results.output1) {
-                predictionValue = result.Results.output1;
-            } else if (result.Results && Array.isArray(result.Results)) {
-                predictionValue = result.Results[0];
-            } else if (result.result) {
-                predictionValue = result.result;
-            } else if (Array.isArray(result) && result.length > 0) {
-                predictionValue = result[0];
-            } else {
-                predictionValue = result;
-            }
-            
-            // Format the display based on the prediction
-            let displayText = '';
-            if (typeof predictionValue === 'object') {
-                const keys = Object.keys(predictionValue);
-                if (keys.length > 0) {
-                    displayText = `<div class="prediction-value">${predictionValue[keys[0]]}</div>`;
-                    if (keys.length > 1) {
-                        displayText += `<div style="margin-top: 15px; font-size: 0.9em; color: #666;">`;
-                        displayText += `Additional details: ${JSON.stringify(predictionValue, null, 2)}`;
-                        displayText += `</div>`;
+                    // Try WebServiceOutput0
+                    if (result.Results.WebServiceOutput0) {
+                        console.log('Has WebServiceOutput0');
+                        const output = result.Results.WebServiceOutput0;
+                        console.log('WebServiceOutput0 type:', typeof output);
+                        console.log('WebServiceOutput0 content:', output);
+                
+                        if (Array.isArray(output) && output.length > 0) {
+                            console.log('WebServiceOutput0 is array with length:', output.length);
+                            console.log('First element:', output[0]);
+                    
+                            const firstItem = output[0];
+                            if (typeof firstItem === 'object') {
+                                console.log('First item keys:', Object.keys(firstItem));
+                        
+                                // Look for common field names
+                                predictionValue = firstItem['Scored Labels'] || 
+                                                firstItem['scored_labels'] ||
+                                                firstItem['prediction'] || 
+                                                firstItem['Prediction'] ||
+                                                firstItem['satisfaction'] ||
+                                                firstItem['Satisfaction'] ||
+                                                JSON.stringify(firstItem);
+                            } else {
+                                predictionValue = firstItem;
+                            }
+                        }
+                    }
+                    // Try other common output names
+                    else if (result.Results.output1) {
+                        predictionValue = result.Results.output1;
+                    }
+                    // Get first property
+                    else {
+                        const firstKey = Object.keys(result.Results)[0];
+                        console.log('Using first Results key:', firstKey);
+                        const firstValue = result.Results[firstKey];
+                        console.log('First value:', firstValue);
+                
+                        if (Array.isArray(firstValue) && firstValue.length > 0) {
+                            predictionValue = JSON.stringify(firstValue[0]);
+                        } else {
+                            predictionValue = JSON.stringify(firstValue);
+                        }
                     }
                 }
-            } else {
-                displayText = `<div class="prediction-value">${predictionValue}</div>`;
+            } catch (error) {
+                console.error('Error extracting prediction:', error);
+                predictionValue = 'Error: ' + error.message;
             }
-            
-            // Add interpretation
-            if (predictionValue === 'satisfied' || predictionValue === 1 || predictionValue === '1') {
-                displayText += '<div style="margin-top: 10px; color: #4caf50;">✅ Passenger is likely to be satisfied</div>';
-            } else if (predictionValue === 'neutral or dissatisfied' || predictionValue === 0 || predictionValue === '0') {
-                displayText += '<div style="margin-top: 10px; color: #ff9800;">⚠️ Passenger is likely to be neutral or dissatisfied</div>';
-            }
-            
+    
+            console.log('Final extracted value:', predictionValue);
+    
+            displayText += '<div style="margin-top: 20px; padding: 15px; background: white; border-radius: 5px;">';
+            displayText += '<strong>Extracted Prediction:</strong><br>';
+            displayText += '<div class="prediction-value" style="margin-top: 10px;">' + predictionValue + '</div>';
+            displayText += '</div>';
+    
             predictionResult.innerHTML = displayText;
             resultSection.classList.add('active');
         }
