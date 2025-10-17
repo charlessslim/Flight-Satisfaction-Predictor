@@ -4,7 +4,7 @@ A machine learning web application that predicts passenger satisfaction based on
 
 ## 🌐 Live Demo
 
-**Website:** [https://your-site-name.netlify.app](https://your-site-name.netlify.app)
+**Website:** https://msi5001-demo.netlify.app/
 
 ## 📋 Features
 
@@ -54,7 +54,7 @@ Built using Azure ML Designer with:
 
 ## 📝 License
 
-This project is for educational purposes.
+This project is for educational purposes. AI has been extensively used for its completion.
 
 ---
 
