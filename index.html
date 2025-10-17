@@ -486,84 +486,73 @@
             const resultSection = document.getElementById('result-section');
             const predictionResult = document.getElementById('prediction-result');
     
-            // Show the raw result for debugging
-            let displayText = '<div style="margin-bottom: 15px;"><strong>Raw Response (for debugging):</strong></div>';
-            displayText += '<pre style="text-align: left; font-size: 0.8em; background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; max-height: 400px;">';
-            displayText += JSON.stringify(result, null, 2);
-            displayText += '</pre>';
-    
-            // Try to extract the prediction
-            let predictionValue = 'Unable to extract prediction';
+            let displayText = '';
+            let predictionValue = '';
+            let probability = null;
     
             try {
-                // Log the structure
-                console.log('Full result:', result);
-                console.log('Result type:', typeof result);
-                console.log('Result keys:', Object.keys(result));
-        
-                // Try common Azure ML response formats
-                if (result.Results) {
-                    console.log('Has Results property');
-                    console.log('Results keys:', Object.keys(result.Results));
-                    console.log('Results content:', result.Results);
-            
-                    // Try WebServiceOutput0
-                    if (result.Results.WebServiceOutput0) {
-                        console.log('Has WebServiceOutput0');
-                        const output = result.Results.WebServiceOutput0;
-                        console.log('WebServiceOutput0 type:', typeof output);
-                        console.log('WebServiceOutput0 content:', output);
-                
-                        if (Array.isArray(output) && output.length > 0) {
-                            console.log('WebServiceOutput0 is array with length:', output.length);
-                            console.log('First element:', output[0]);
-                    
-                            const firstItem = output[0];
-                            if (typeof firstItem === 'object') {
-                                console.log('First item keys:', Object.keys(firstItem));
-                        
-                                // Look for common field names
-                                predictionValue = firstItem['Scored Labels'] || 
-                                                firstItem['scored_labels'] ||
-                                                firstItem['prediction'] || 
-                                                firstItem['Prediction'] ||
-                                                firstItem['satisfaction'] ||
-                                                firstItem['Satisfaction'] ||
-                                                JSON.stringify(firstItem);
-                            } else {
-                                predictionValue = firstItem;
-                            }
-                        }
-                    }
-                    // Try other common output names
-                    else if (result.Results.output1) {
-                        predictionValue = result.Results.output1;
-                    }
-                    // Get first property
-                    else {
-                        const firstKey = Object.keys(result.Results)[0];
-                        console.log('Using first Results key:', firstKey);
-                        const firstValue = result.Results[firstKey];
-                        console.log('First value:', firstValue);
-                
-                        if (Array.isArray(firstValue) && firstValue.length > 0) {
-                            predictionValue = JSON.stringify(firstValue[0]);
-                        } else {
-                            predictionValue = JSON.stringify(firstValue);
-                        }
+                // Extract prediction from Azure ML Designer response
+                if (result.Results && result.Results.WebServiceOutput0) {
+                    const output = result.Results.WebServiceOutput0;
+                    if (Array.isArray(output) && output.length > 0) {
+                        const firstResult = output[0];
+                        predictionValue = firstResult['Scored Labels'] || '';
+                        probability = firstResult['Scored Probabilities'];
                     }
                 }
+        
+                // Display the prediction
+                if (predictionValue) {
+                    const valueStr = String(predictionValue).toLowerCase();
+            
+                    if (valueStr.includes('satisfied') && !valueStr.includes('dissatisfied')) {
+                        displayText = `
+                            <div class="prediction-value" style="color: #4caf50;">✅ Satisfied</div>
+                            <div style="margin-top: 15px; font-size: 1.1em; color: #4caf50;">
+                                <strong>Passenger is likely to be satisfied</strong>
+                            </div>
+                        `;
+                    } else if (valueStr.includes('dissatisfied') || valueStr.includes('neutral')) {
+                        displayText = `
+                            <div class="prediction-value" style="color: #ff9800;">⚠️ Not Satisfied</div>
+                            <div style="margin-top: 15px; font-size: 1.1em; color: #ff9800;">
+                                <strong>Passenger is likely to be neutral or dissatisfied</strong>
+                            </div>
+                        `;
+                    } else {
+                        displayText = `<div class="prediction-value">${predictionValue}</div>`;
+                    }
+            
+                    // Add probability if available
+                    if (probability !== null && probability !== undefined) {
+                        const percentConfidence = (probability * 100).toFixed(1);
+                        displayText += `
+                            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                                <div style="font-size: 0.9em; color: #666; margin-bottom: 5px;">Confidence Level</div>
+                                <div style="font-size: 1.3em; font-weight: 600; color: #667eea;">${percentConfidence}%</div>
+                                <div style="margin-top: 10px; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                                    <div style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: ${percentConfidence}%; transition: width 0.5s ease;"></div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    displayText = `
+                        <div style="color: #666;">Unable to extract prediction</div>
+                        <details style="margin-top: 15px; text-align: left;">
+                            <summary style="cursor: pointer; color: #667eea;">Show raw response</summary>
+                            <pre style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px; overflow-x: auto; font-size: 0.8em;">${JSON.stringify(result, null, 2)}</pre>
+                        </details>
+                    `;
+                }
+        
             } catch (error) {
-                console.error('Error extracting prediction:', error);
-                predictionValue = 'Error: ' + error.message;
+                console.error('Error displaying result:', error);
+                displayText = `
+                    <div style="color: #c33;">Error displaying prediction</div>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">${error.message}</div>
+                `;
             }
-    
-            console.log('Final extracted value:', predictionValue);
-    
-            displayText += '<div style="margin-top: 20px; padding: 15px; background: white; border-radius: 5px;">';
-            displayText += '<strong>Extracted Prediction:</strong><br>';
-            displayText += '<div class="prediction-value" style="margin-top: 10px;">' + predictionValue + '</div>';
-            displayText += '</div>';
     
             predictionResult.innerHTML = displayText;
             resultSection.classList.add('active');
