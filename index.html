@@ -78,6 +78,11 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
+        .input-group.error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
         label {
             display: block;
             margin-bottom: 8px;
@@ -103,6 +108,10 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        input.invalid, select.invalid {
+            border-color: #ef4444;
+        }
+
         select {
             cursor: pointer;
         }
@@ -111,6 +120,17 @@
             font-size: 0.8em;
             color: #888;
             margin-top: 3px;
+        }
+
+        .error-text {
+            font-size: 0.75em;
+            color: #ef4444;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .input-group.error .error-text {
+            display: block;
         }
 
         .button-group {
@@ -213,17 +233,79 @@
             background: white;
             padding: 20px;
             border-radius: 10px;
-            font-size: 1.2em;
-            color: #444;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
         }
 
         .prediction-value {
             font-size: 1.8em;
             font-weight: bold;
-            color: #667eea;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .prediction-message {
+            text-align: center;
+            font-size: 1.1em;
+            margin: 15px 0;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .probability-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .probability-title {
+            font-size: 1em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .probability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .probability-item {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .probability-label {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .probability-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .probability-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
             margin-top: 10px;
+        }
+
+        .probability-fill {
+            height: 100%;
+            background: white;
+            border-radius: 4px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
         }
 
         .error {
@@ -265,35 +347,39 @@
         <!-- Customer Information -->
         <div class="section-title">👤 Customer Information</div>
         <div class="input-grid">
-            <div class="input-group">
+            <div class="input-group" id="group-gender">
                 <label for="gender">Gender:</label>
                 <select id="gender">
                     <option value="">Select Gender</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
                 </select>
+                <div class="error-text">Please select a gender</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-customer-type">
                 <label for="customer-type">Customer Type:</label>
                 <select id="customer-type">
                     <option value="">Select Type</option>
                     <option value="Loyal Customer">Loyal Customer</option>
                     <option value="disloyal Customer">Disloyal Customer</option>
                 </select>
+                <div class="error-text">Please select a customer type</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-age">
                 <label for="age">Age:</label>
                 <input type="number" id="age" min="1" max="120" placeholder="Enter age">
+                <div class="error-text">Age must be between 1 and 120</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-type-of-travel">
                 <label for="type-of-travel">Type of Travel:</label>
                 <select id="type-of-travel">
                     <option value="">Select Type</option>
                     <option value="Personal Travel">Personal Travel</option>
                     <option value="Business travel">Business Travel</option>
                 </select>
+                <div class="error-text">Please select a travel type</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-class">
                 <label for="class">Class:</label>
                 <select id="class">
                     <option value="">Select Class</option>
@@ -301,98 +387,116 @@
                     <option value="Eco Plus">Economy Plus</option>
                     <option value="Business">Business</option>
                 </select>
+                <div class="error-text">Please select a class</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-flight-distance">
                 <label for="flight-distance">Flight Distance:</label>
-                <input type="number" id="flight-distance" min="0" placeholder="Enter distance (miles)">
+                <input type="number" id="flight-distance" min="0" max="15000" placeholder="Enter distance (miles)">
+                <div class="error-text">Distance must be between 0 and 15,000 miles</div>
             </div>
         </div>
 
         <!-- Service Ratings -->
         <div class="section-title">⭐ Service Ratings</div>
         <div class="input-grid">
-            <div class="input-group">
+            <div class="input-group" id="group-wifi-service">
                 <label for="wifi-service">Inflight WiFi Service:</label>
                 <input type="number" id="wifi-service" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-time-convenient">
                 <label for="time-convenient">Departure/Arrival Time Convenient:</label>
                 <input type="number" id="time-convenient" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-online-booking">
                 <label for="online-booking">Ease of Online Booking:</label>
                 <input type="number" id="online-booking" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-gate-location">
                 <label for="gate-location">Gate Location:</label>
                 <input type="number" id="gate-location" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-food-drink">
                 <label for="food-drink">Food and Drink:</label>
                 <input type="number" id="food-drink" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-online-boarding">
                 <label for="online-boarding">Online Boarding:</label>
                 <input type="number" id="online-boarding" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-seat-comfort">
                 <label for="seat-comfort">Seat Comfort:</label>
                 <input type="number" id="seat-comfort" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-inflight-entertainment">
                 <label for="inflight-entertainment">Inflight Entertainment:</label>
                 <input type="number" id="inflight-entertainment" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-onboard-service">
                 <label for="onboard-service">On-board Service:</label>
                 <input type="number" id="onboard-service" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-legroom">
                 <label for="legroom">Leg Room Service:</label>
                 <input type="number" id="legroom" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-baggage-handling">
                 <label for="baggage-handling">Baggage Handling:</label>
                 <input type="number" id="baggage-handling" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-checkin-service">
                 <label for="checkin-service">Check-in Service:</label>
                 <input type="number" id="checkin-service" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-inflight-service">
                 <label for="inflight-service">Inflight Service:</label>
                 <input type="number" id="inflight-service" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-cleanliness">
                 <label for="cleanliness">Cleanliness:</label>
                 <input type="number" id="cleanliness" min="0" max="5" placeholder="Rate 0-5">
                 <div class="rating-info">0 = N/A, 1-5 = Poor to Excellent</div>
+                <div class="error-text">Rating must be between 0 and 5</div>
             </div>
         </div>
 
         <!-- Delay Information -->
         <div class="section-title">⏱️ Delay Information</div>
         <div class="input-grid">
-            <div class="input-group">
+            <div class="input-group" id="group-departure-delay">
                 <label for="departure-delay">Departure Delay (Minutes):</label>
-                <input type="number" id="departure-delay" min="0" placeholder="Enter delay in minutes">
+                <input type="number" id="departure-delay" min="0" max="1440" placeholder="Enter delay in minutes">
+                <div class="error-text">Delay must be between 0 and 1440 minutes (24 hours)</div>
             </div>
-            <div class="input-group">
+            <div class="input-group" id="group-arrival-delay">
                 <label for="arrival-delay">Arrival Delay (Minutes):</label>
-                <input type="number" id="arrival-delay" min="0" placeholder="Enter delay in minutes">
+                <input type="number" id="arrival-delay" min="0" max="1440" placeholder="Enter delay in minutes">
+                <div class="error-text">Delay must be between 0 and 1440 minutes (24 hours)</div>
             </div>
         </div>
 
@@ -415,8 +519,98 @@
     </div>
 
     <script>
+        function validateInput(id, min, max, required = false) {
+            const element = document.getElementById(id);
+            const group = document.getElementById(`group-${id}`);
+            const value = element.value;
+            
+            // Check if required field is empty
+            if (required && !value) {
+                group.classList.add('error');
+                element.classList.add('invalid');
+                return false;
+            }
+            
+            // If not required and empty, it's valid
+            if (!required && !value) {
+                group.classList.remove('error');
+                element.classList.remove('invalid');
+                return true;
+            }
+            
+            // Check numeric range
+            const numValue = parseFloat(value);
+            if (isNaN(numValue) || numValue < min || numValue > max) {
+                group.classList.add('error');
+                element.classList.add('invalid');
+                return false;
+            }
+            
+            group.classList.remove('error');
+            element.classList.remove('invalid');
+            return true;
+        }
+
+        function validateForm() {
+            let isValid = true;
+            
+            // Required fields
+            isValid = validateInput('gender', 0, 0, true) && isValid;
+            isValid = validateInput('customer-type', 0, 0, true) && isValid;
+            isValid = validateInput('type-of-travel', 0, 0, true) && isValid;
+            isValid = validateInput('class', 0, 0, true) && isValid;
+            
+            // Age validation
+            const age = document.getElementById('age').value;
+            if (age) {
+                isValid = validateInput('age', 1, 120) && isValid;
+            }
+            
+            // Flight distance
+            const distance = document.getElementById('flight-distance').value;
+            if (distance) {
+                isValid = validateInput('flight-distance', 0, 15000) && isValid;
+            }
+            
+            // Service ratings (0-5)
+            const ratings = ['wifi-service', 'time-convenient', 'online-booking', 'gate-location',
+                           'food-drink', 'online-boarding', 'seat-comfort', 'inflight-entertainment',
+                           'onboard-service', 'legroom', 'baggage-handling', 'checkin-service',
+                           'inflight-service', 'cleanliness'];
+            
+            ratings.forEach(id => {
+                const value = document.getElementById(id).value;
+                if (value) {
+                    isValid = validateInput(id, 0, 5) && isValid;
+                }
+            });
+            
+            // Delays (0-1440 minutes = 24 hours)
+            const departureDelay = document.getElementById('departure-delay').value;
+            if (departureDelay) {
+                isValid = validateInput('departure-delay', 0, 1440) && isValid;
+            }
+            
+            const arrivalDelay = document.getElementById('arrival-delay').value;
+            if (arrivalDelay) {
+                isValid = validateInput('arrival-delay', 0, 1440) && isValid;
+            }
+            
+            return isValid;
+        }
+
         async function makePrediction() {
-            // Collect all input values
+            // Validate form
+            if (!validateForm()) {
+                showMessage('Please fix the errors highlighted in red before submitting', 'error');
+                // Scroll to first error
+                const firstError = document.querySelector('.input-group.error');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return;
+            }
+            
             const inputData = {
                 "Gender": document.getElementById('gender').value,
                 "Customer Type": document.getElementById('customer-type').value,
@@ -442,19 +636,11 @@
                 "Arrival Delay in Minutes": parseInt(document.getElementById('arrival-delay').value) || 0
             };
             
-            // Validate required fields
-            if (!inputData.Gender || !inputData["Customer Type"] || !inputData["Type of Travel"] || !inputData.Class) {
-                showMessage('Please fill in all required fields', 'error');
-                return;
-            }
-            
-            // Show loading
             document.getElementById('loading').classList.add('active');
             document.getElementById('result-section').classList.remove('active');
             clearMessages();
             
             try {
-                // Call the Azure Static Web Apps API function
                 const response = await fetch('/api/predict', {
                     method: 'POST',
                     headers: {
@@ -471,7 +657,6 @@
                 const result = await response.json();
                 console.log('Received result:', result);
                 
-                // Display result
                 displayResult(result);
                 
             } catch (error) {
@@ -485,13 +670,12 @@
         function displayResult(result) {
             const resultSection = document.getElementById('result-section');
             const predictionResult = document.getElementById('prediction-result');
-    
+            
             let displayText = '';
             let predictionValue = '';
             let probability = null;
-    
+            
             try {
-                // Extract prediction from Azure ML Designer response
                 if (result.Results && result.Results.WebServiceOutput0) {
                     const output = result.Results.WebServiceOutput0;
                     if (Array.isArray(output) && output.length > 0) {
@@ -500,83 +684,19 @@
                         probability = firstResult['Scored Probabilities'];
                     }
                 }
-        
-                // Display the prediction
+                
                 if (predictionValue) {
                     const valueStr = String(predictionValue).toLowerCase();
-            
+                    const satisfiedProb = probability !== null ? (probability * 100).toFixed(1) : null;
+                    const dissatisfiedProb = probability !== null ? ((1 - probability) * 100).toFixed(1) : null;
+                    
                     if (valueStr.includes('satisfied') && !valueStr.includes('dissatisfied')) {
                         displayText = `
-                            <div class="prediction-value" style="color: #4caf50;">✅ Satisfied</div>
-                            <div style="margin-top: 15px; font-size: 1.1em; color: #4caf50;">
-                                <strong>Passenger is likely to be satisfied</strong>
-                            </div>
-                        `;
-                    } else if (valueStr.includes('dissatisfied') || valueStr.includes('neutral')) {
-                        displayText = `
-                            <div class="prediction-value" style="color: #ff9800;">⚠️ Not Satisfied</div>
-                            <div style="margin-top: 15px; font-size: 1.1em; color: #ff9800;">
-                                <strong>Passenger is likely to be neutral or dissatisfied</strong>
+                            <div class="prediction-value" style="color: #10b981;">✅ Satisfied</div>
+                            <div class="prediction-message" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46;">
+                                <strong>Passenger is likely to be satisfied with their flight experience</strong>
                             </div>
                         `;
                     } else {
-                        displayText = `<div class="prediction-value">${predictionValue}</div>`;
-                    }
-            
-                    // Add probability if available
-                    if (probability !== null && probability !== undefined) {
-                        const percentConfidence = (probability * 100).toFixed(1);
-                        displayText += `
-                            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                                <div style="font-size: 0.9em; color: #666; margin-bottom: 5px;">Confidence Level</div>
-                                <div style="font-size: 1.3em; font-weight: 600; color: #667eea;">${percentConfidence}%</div>
-                                <div style="margin-top: 10px; background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
-                                    <div style="background: linear-gradient(90deg, #667eea, #764ba2); height: 100%; width: ${percentConfidence}%; transition: width 0.5s ease;"></div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                } else {
-                    displayText = `
-                        <div style="color: #666;">Unable to extract prediction</div>
-                        <details style="margin-top: 15px; text-align: left;">
-                            <summary style="cursor: pointer; color: #667eea;">Show raw response</summary>
-                            <pre style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px; overflow-x: auto; font-size: 0.8em;">${JSON.stringify(result, null, 2)}</pre>
-                        </details>
-                    `;
-                }
-        
-            } catch (error) {
-                console.error('Error displaying result:', error);
-                displayText = `
-                    <div style="color: #c33;">Error displaying prediction</div>
-                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">${error.message}</div>
-                `;
-            }
-    
-            predictionResult.innerHTML = displayText;
-            resultSection.classList.add('active');
-        }
-
-        function clearForm() {
-            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
-            document.querySelectorAll('select').forEach(select => select.value = '');
-            document.getElementById('result-section').classList.remove('active');
-            clearMessages();
-        }
-
-        function showMessage(message, type) {
-            const messageArea = document.getElementById('message-area');
-            messageArea.innerHTML = `<div class="${type}">${message}</div>`;
-            
-            setTimeout(() => {
-                clearMessages();
-            }, 5000);
-        }
-
-        function clearMessages() {
-            document.getElementById('message-area').innerHTML = '';
-        }
-    </script>
-</body>
-</html>
+                        displayText = `
+                            <div class="prediction-value" style="color: #f59e0b;">
