@@ -699,4 +699,116 @@
                         `;
                     } else {
                         displayText = `
-                            <div class="prediction-value" style="color: #f59e0b;">
+                            <div class="prediction-value" style="color: #f59e0b;">⚠️ Not Satisfied</div>
+                            <div class="prediction-message" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e;">
+                                <strong>Passenger is likely to be neutral or dissatisfied with their flight experience</strong>
+                            </div>
+                        `;
+                    }
+                    
+                    // Add probability information
+                    if (probability !== null && probability !== undefined) {
+                        displayText += `
+                            <div class="probability-card">
+                                <div class="probability-title">📊 Probability Breakdown</div>
+                                <div class="probability-grid">
+                                    <div class="probability-item">
+                                        <div class="probability-label">Satisfied</div>
+                                        <div class="probability-value">${satisfiedProb}%</div>
+                                        <div class="probability-bar">
+                                            <div class="probability-fill" style="width: ${satisfiedProb}%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="probability-item">
+                                        <div class="probability-label">Not Satisfied</div>
+                                        <div class="probability-value">${dissatisfiedProb}%</div>
+                                        <div class="probability-bar">
+                                            <div class="probability-fill" style="width: ${dissatisfiedProb}%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    displayText = `
+                        <div style="color: #666;">Unable to extract prediction</div>
+                        <details style="margin-top: 15px;">
+                            <summary style="cursor: pointer; color: #667eea;">Show raw response</summary>
+                            <pre style="margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 5px; overflow-x: auto; font-size: 0.8em;">${JSON.stringify(result, null, 2)}</pre>
+                        </details>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Error displaying result:', error);
+                displayText = `
+                    <div style="color: #c33;">Error displaying prediction</div>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">${error.message}</div>
+                `;
+            }
+            
+            predictionResult.innerHTML = displayText;
+            resultSection.classList.add('active');
+        }
+
+        function clearForm() {
+            document.querySelectorAll('input[type="number"]').forEach(input => input.value = '');
+            document.querySelectorAll('select').forEach(select => select.value = '');
+            document.querySelectorAll('.input-group').forEach(group => group.classList.remove('error'));
+            document.querySelectorAll('input, select').forEach(el => el.classList.remove('invalid'));
+            document.getElementById('result-section').classList.remove('active');
+            clearMessages();
+        }
+
+        function showMessage(message, type) {
+            const messageArea = document.getElementById('message-area');
+            messageArea.innerHTML = `<div class="${type}">${message}</div>`;
+            
+            setTimeout(() => {
+                clearMessages();
+            }, 5000);
+        }
+
+        function clearMessages() {
+            document.getElementById('message-area').innerHTML = '';
+        }
+
+        // Add real-time validation on blur
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('input[type="number"], select');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    const id = this.id;
+                    const group = document.getElementById(`group-${id}`);
+                    
+                    if (group && this.value) {
+                        const min = parseFloat(this.min) || 0;
+                        const max = parseFloat(this.max) || Infinity;
+                        validateInput(id, min, max);
+                    } else if (group && !this.value) {
+                        // Check if it's a required field
+                        const required = ['gender', 'customer-type', 'type-of-travel', 'class'].includes(id);
+                        if (required) {
+                            group.classList.add('error');
+                            this.classList.add('invalid');
+                        } else {
+                            group.classList.remove('error');
+                            this.classList.remove('invalid');
+                        }
+                    }
+                });
+                
+                input.addEventListener('input', function() {
+                    const group = document.getElementById(`group-${this.id}`);
+                    if (group && group.classList.contains('error')) {
+                        // Remove error as user types
+                        group.classList.remove('error');
+                        this.classList.remove('invalid');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
