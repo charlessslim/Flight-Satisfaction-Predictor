@@ -32,9 +32,10 @@ exports.handler = async function(event, context) {
         // Format data for Azure ML Designer pipeline
         // The pipeline expects 'input1' with column-based format
         const requestBody = {
-            "input1": {
-                "data": [inputData]
-            }
+            "Inputs": {
+                "input1": [inputData]
+            },
+            "GlobalParameters": {}
         };
 
         console.log('Sending to Azure ML:', JSON.stringify(requestBody, null, 2));
