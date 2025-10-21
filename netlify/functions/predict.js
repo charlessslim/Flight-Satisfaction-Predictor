@@ -77,7 +77,7 @@ exports.handler = async function(event, context) {
         console.log('HTTP Status:', response.status, response.statusText);
 
         const responseText = await response.text();
-        console.log('📩 Response size:', responseText.length, 'bytes');
+        console.log('Response size:', responseText.length, 'bytes');
 
         if (!response.ok) {
             console.error('❌ Azure ML API Error:', response.status);
