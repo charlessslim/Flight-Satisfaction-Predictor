@@ -18,6 +18,7 @@ A machine learning web application that predicts passenger satisfaction based on
 ```
 ├── index.html             # Frontend interface
 ├── netlify.toml           # Netlify configuration
+├── train.csv              # Dataset
 ├── package.json           # Dependencies
 └── netlify/
     └── functions/
