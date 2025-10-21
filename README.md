@@ -16,7 +16,7 @@ A machine learning web application that predicts passenger satisfaction based on
 
 ## 🏗️ Project Structure
 ```
-├── index.html              # Frontend interface
+├── index.html             # Frontend interface
 ├── netlify.toml           # Netlify configuration
 ├── package.json           # Dependencies
 └── netlify/
