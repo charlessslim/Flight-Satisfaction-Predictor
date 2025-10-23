@@ -4,7 +4,7 @@ A machine learning web application that predicts passenger satisfaction based on
 
 ## 🌐 Live Demo
 
-**Website:** https://msi5001-demo.vercel.app/
+**Website:** https://flight-satisfaction-predictor-pink.vercel.app/
 
 ## 📋 Features
 
