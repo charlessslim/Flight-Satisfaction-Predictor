@@ -1,6 +1,8 @@
 {
-     "type": "module",
-     "dependencies": {
-       "node-fetch": "^2.6.1"
-     }
-   }
+  "name": "flight-satisfaction-predictor",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
+}
