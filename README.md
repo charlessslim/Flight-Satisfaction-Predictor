@@ -4,7 +4,7 @@ A machine learning web application that predicts passenger satisfaction based on
 
 ## 🌐 Live Demo
 
-**Website:** https://msi5001-demo.netlify.app/
+**Website:** https://msi5001-demo.vercel.app/
 
 ## 📋 Features
 
@@ -12,33 +12,32 @@ A machine learning web application that predicts passenger satisfaction based on
 - Interactive form with input validation
 - Probability breakdown for predictions
 - Modern, responsive UI design
-- Secure API key management via Netlify Functions
+- Secure API key management via Vercel Functions
 
 ## 🏗️ Project Structure
 ```
 ├── index.html             # Frontend interface
-├── netlify.toml           # Netlify configuration
+├── vercel.json            # Vercel configuration
 ├── train.csv              # Dataset
 ├── package.json           # Dependencies
-└── netlify/
-    └── functions/
-        └── predict.js     # Secure API backend
+└── api/
+    └── predict.js         # Secure API backend
 ```
 
 ## 🚀 How It Works
 
 1. User fills out flight experience data
 2. Frontend validates all inputs
-3. Data sent to Netlify Function (`/api/predict`)
+3. Data sent to Vercel Function (`/api/predict`)
 4. Function securely calls Azure ML endpoint
 5. Prediction results displayed with probability scores
 
 ## 🔧 Technologies Used
 
 - **Frontend:** HTML, CSS, JavaScript
-- **Backend:** Netlify Serverless Functions
+- **Backend:** Vercel Serverless Functions
 - **ML Model:** Azure Machine Learning
-- **Hosting:** Netlify (with GitHub auto-deploy)
+- **Hosting:** Vercel (with GitHub auto-deploy)
 
 ## 📊 Azure ML Pipeline
 
