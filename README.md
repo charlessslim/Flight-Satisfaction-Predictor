@@ -17,7 +17,6 @@ A machine learning web application that predicts passenger satisfaction based on
 ## 🏗️ Project Structure
 ```
 ├── index.html             # Frontend interface
-├── vercel.json            # Vercel configuration
 ├── train.csv              # Dataset
 ├── package.json           # Dependencies
 └── api/
