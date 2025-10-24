@@ -47,7 +47,7 @@ Built using Azure ML Designer with:
 
 ## 🔐 Security
 
-- API keys stored as Netlify environment variables
+- API keys stored as Vercel environment variables
 - No sensitive data exposed in client-side code
 - Secure serverless function architecture
 
