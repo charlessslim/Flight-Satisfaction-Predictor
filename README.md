@@ -34,8 +34,8 @@ A machine learning web application that predicts passenger satisfaction based on
 ## 🔧 Technologies Used
 
 - **Frontend:** HTML, CSS, JavaScript
-- **Backend:** Vercel Serverless Functions
-- **ML Model:** Azure Machine Learning
+- **API Gateway:** Vercel Serverless Functions (securely forwards requests)
+- **Server/Backend:** Azure Machine Learning Endpoint
 - **Hosting:** Vercel (with GitHub auto-deploy)
 
 ## 📊 Azure ML Pipeline
